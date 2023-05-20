@@ -18,11 +18,13 @@
     <script>
         const canvasE1 = document.querySelector("canvas"),
             canvasCtx = canvasE1.getContext("2d")
-
-        const lineWidth = 15
         const marginBar = 10
-        const barHeight = 200
-        const heightYbar = 400
+        const mouse = {
+            x: 0,
+            y: 0
+        }
+        
+        
 
         //objects
         const field = {
@@ -46,39 +48,58 @@
 
         const leftBar = {
             x: marginBar,
-            y: 300,
+            y: 0,
             w: centerLine.w,
             h: 200,
+
+            _move: function () {
+                this.y = mouse.y - this.h / 2
+            },
             draw: function () {
                 canvasCtx.fillStyle = "#ffffff"
                 canvasCtx.fillRect(this.x, this.y, this.w, this.h)
+
+                this._move()
             }
 
         }
 
         const rightBar = {
             x: field.w - centerLine.w - marginBar,
-            y: 300,
+            y: 0,
             w: centerLine.w,
             h: 200,
+
+            _move: function () {
+                this.y = ball.y
+            },
             draw: function () {
                 canvasCtx.fillStyle = "#ffffff"
                 canvasCtx.fillRect(this.x, this.y, this.w, this.h)
+
+                this._move()
             }          
         }
 
         const ball = {
-            x: 300,
-            y: 250,
+            x: 0,
+            y: 0,
             r: 20,
             startAngle: 0,
             endAngle: 2 * Math.PI,
-            
+            speed: 3,
+            _move: function () {
+                this.x += 1 * this.speed
+                this.y += 1 * this.speed
+            },
+
             draw: function () {
                 canvasCtx.fillStyle = "#ffffff"
                 canvasCtx.beginPath()
                 canvasCtx.arc(this.x, this.y, this.r, this.startAngle, this.endAngle * Math.PI, false)
                 canvasCtx.fill()
+
+                this._move()
             }
             
         }
@@ -102,7 +123,6 @@
             canvasE1.height = canvasCtx.height = window.innerHeight            
         }
         function draw() {
-
             field.draw()
             scoreboard.draw()
             centerLine.draw()
@@ -111,8 +131,30 @@
             ball.draw()
         }
 
+        window.animateFrame = (function () {
+            return (
+                window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback) {
+                    return window.setTimeout(callback, 1000 / 60)
+                }
+            )
+        })()
+
+        function main() {
+            animateFrame(main)
+            draw()
+        }
         setup()
-        draw()
+        main()
+        canvasE1.addEventListener("mousemove", function (e) {
+            mouse.x = e.pageX
+            mouse.y = e.pageY
+        })
+    
     </script>
 </body>
 </html>
