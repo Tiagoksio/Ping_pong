@@ -82,15 +82,67 @@
         }
 
         const ball = {
-            x: 0,
-            y: 0,
+            x: field.w / 2,
+            y: field.h / 2,
             r: 20,
             startAngle: 0,
             endAngle: 2 * Math.PI,
             speed: 3,
+            directionY: -1,
+            directionX: -1,
+
+            _calcPosition: function () {
+                if (
+                    this.y > field.h - this.r && 
+                    this.directionY > 0 || 
+                    this.y - this.r < 0 && 
+                    this.directionY < 0
+                ) {
+                    this._reverseY()
+                }
+                
+                if (this.x > field.w - this.r - rightBar.w - marginBar) {
+                    if ( 
+                        this.y + this.r > rightBar.y && 
+                        this.y - this.r < rightBar.y + rightBar.h
+                    ) {
+                        this._reverseX()
+                    } else {
+                        scoreboard.increaseHuman()
+                        this._resetPosition()
+                    }
+                }
+
+                if (this.x < this.r + leftBar.w + marginBar) {
+                    if (
+                        this.y + this.r > leftBar.y &&
+                        this.y - this.r < leftBar.y + leftBar.h
+                    ) {
+                        this._reverseX()
+                    } else {
+                        scoreboard.increaseComputer()
+                        this._resetPosition()
+                    }
+                    
+                }
+
+            },
+
+            _resetPosition: function() {
+                this.x = field.w / 2
+                this.y = field.h / 2
+            },
+            _reverseY: function () {
+                this.directionY *= -1
+            },
+
+            _reverseX: function () {
+                this.directionX *= -1
+            },
+
             _move: function () {
-                this.x += 1 * this.speed
-                this.y += 1 * this.speed
+                this.x += this.directionX * this.speed
+                this.y += this.directionY * this.speed
             },
 
             draw: function () {
@@ -99,14 +151,22 @@
                 canvasCtx.arc(this.x, this.y, this.r, this.startAngle, this.endAngle * Math.PI, false)
                 canvasCtx.fill()
 
+                this._calcPosition()
                 this._move()
             }
             
         }
 
         const scoreboard = {
-            human: 1,
-            computer: 7,
+            human: 0,
+            computer: 0,
+            increaseHuman: function () {
+                this.human++
+            },
+            
+            increaseComputer: function () {
+                this.computer++
+            },
 
             draw: function () {
                 canvasCtx.font = "bold 72px Arial"
